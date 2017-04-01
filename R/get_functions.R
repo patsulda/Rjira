@@ -62,11 +62,12 @@ get_projects <- function(jira_url = getOption("jira_url")
 #' 
 #' 
 get_issues <- function(user = NULL
-                       , project_key = getOption("jira_project")
+                       , project_key = NULL
                        , jira_url = getOption("jira_url")
                        , jira_user = getOption("jira_user")
                        , jira_password = getOption("jira_password")
-                       , verbose = getOption("jira_verbose")){
+                       , verbose = getOption("jira_verbose")
+                       , num = NULL){
   
   if(is.null(jira_url))
     stop('jira_url is NULL. See getOption("jira_url")')
@@ -81,21 +82,21 @@ get_issues <- function(user = NULL
   if(!is.null(project_key)){
     url <- paste0(url, sprintf('jql=project="%s"', project_key))
     if(!is.null(user))
-      url <- paste(url, sprintf('AND assignee="%s"', user))
-  
+      url <- paste0(url, sprintf('%20AND%20assignee="%s"', user))
+    
   }else if(!is.null(user)){
-    url <- paste0(url, sprintf('jql=assignee="%s"', project_key))
+    url <- paste0(url, sprintf('jql=assignee="%s"', user))
   }
   
-
+  if(!is.null(num)){
+    url <- paste0(url, sprintf('&maxResults=%s', num))
+  }
+  
   res <- jira_get(url = url, user = jira_user, password = jira_password, verbose = verbose)
   res <- content(res, as = "parsed")
   res <- res$issues
   
-
-  
   return(res)
   
 }
-
 
